@@ -14,7 +14,7 @@
             <div class="text_wrapper">
               <div class="text">
                 <p class="time"> ({{msg.date | date:'HH:mm:ss'}})</p>
-                {{msg.message}}
+                <div [innerHTML]="msg.message"></div>
               </div>
             </div>
           </li>

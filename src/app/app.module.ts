@@ -5,9 +5,8 @@ import { AppRoutingModules } from './app-routing.modules';
 import { Ng2Webstorage } from 'ngx-webstorage';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { UserService } from './core/api/user/client.service';
+import { UserService } from './core/api/user/user.service';
 import { BootService } from './core/api/chatbot/chatbot.service';
-
 
 import { AuthClientHelper } from './core/helpers/auth/auth-client.helper';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
@@ -21,8 +20,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { ResourceModule } from '@ngx-resource/handler-ngx-http';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CompanyService } from './core/api/company/client.service';
-import { MerchandiseService } from './core/api/merchandise/client.service';
 import { PhpTimeToJsDatePipe } from './core/pipes/phpTimeToJsDate/php-time-to-js-date.pipe';
 import { IConfig, NgxMaskModule } from 'ngx-mask';
 export const options: Partial<IConfig> | (() => Partial<IConfig>) = {};
@@ -56,8 +53,6 @@ registerLocaleData(localePT);
     providers: [
         UserService,
         BootService,
-        CompanyService,
-        MerchandiseService,
         AuthClientHelper,
         ImageHelper,
         SpinnerHelper,
