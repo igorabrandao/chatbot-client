@@ -1,0 +1,16 @@
+.login_content form input[type="submit"], #content form .submit {
+    float: inherit;
+    margin-left: inherit;
+}
+
+.login_content {
+    background-color: #F5F5F5;
+    margin: auto;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.login_content img {
+    width: 80%;
+}

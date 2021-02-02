@@ -1,0 +1,215 @@
+<div [ngClass]="{'container body': isLogged}">
+    <div [ngClass]="{'main_container': isLogged}">
+        <div *ngIf="isLogged" class="col-md-3 left_col menu_fixed" style="overflow-y: scroll;">
+            <div class="left_col scroll-view">
+                <div class="navbar nav_title" style="border: 0;">
+                    <a routerLink="/home" class="site_title">
+                        <!--<span> <img src='assets/images/logo.png' alt="logo"></span>-->
+                        <span>
+                            {{APP_NAME}}
+                        </span>
+                    </a>
+                </div>
+                <div class="clearfix"></div>
+
+                <!-- menu profile quick info -->
+                <div class="profile clearfix">
+                    <div class="profile_info">
+                        <span>Bem vindo</span>
+                        <h2>{{(user) ? user.name : ""}}</h2>
+                    </div>
+                </div>
+                <!-- /menu profile quick info -->
+
+                <!-- sidebar menu -->
+                <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                    <div class="menu_section">
+                        <!-- Admin menu -->
+                        <ul class="nav side-menu" *ngIf="[user.access_level].includes(ACCESS_LEVEL.sysAdmin)">
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/home']">
+                                    <i class="fa fa-home"></i>
+                                    Home
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/categories']">
+                                    <i class="fa fa-list"></i>
+                                    Categorias
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/companies']">
+                                    <i class="fa fa-building-o"></i>
+                                    Empresas
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/products']">
+                                    <i class="fa fa-cubes"></i>
+                                    Produtos disponíveis
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/purchases']">
+                                    <i class="fa fa-shopping-basket"></i>
+                                    Pedidos
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/admin-session']">
+                                    <i class="fa fa-unlock-alt"></i>
+                                    Minhas sessões
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/users']">
+                                    <i class="fa fa-users"></i>
+                                    Usuários
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/admin-deliveries']">
+                                    <i class="fa fa-motorcycle"></i>
+                                    Entregadores
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/push-notification']">
+                                    <i class="fa fa-paper-plane"></i>
+                                    Enviar Notificação
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/fiscal-governance']">
+                                    <i class="fa fa-cog"></i>
+                                    Parâmetros Fiscais
+                                </a>
+                            </li>
+                            <li>
+                                <div class="version_li">
+                                    <i></i>
+                                    Versão: {{APP_VERSION}}
+                                </div>
+                            </li>
+                        </ul>
+
+                        <!-- Company menu -->
+                        <ul class="nav side-menu" *ngIf="[user.access_level].includes(ACCESS_LEVEL.companyAdmin)">
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/home']">
+                                    <i class="fa fa-home"></i>
+                                    Home
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/purchases']">
+                                    <i class="fa fa-shopping-basket"></i>
+                                    Pedidos
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/companies/update/' + user.company_id]">
+                                    <i class="fa fa-building-o"></i>
+                                    Minha empresa
+                                </a>
+                            </li>
+                            <!-- <li routerLinkActive="current-page" *ngIf="company_location_id">
+                                <a [routerLink]="['/locations/update/' + company_location_id]">
+                                    <i class="fa fa-map-marker"></i>
+                                    Minha localização
+                                </a>
+                            </li> -->
+                            <!-- <li routerLinkActive="current-page">
+                                <a [routerLink]="['/users']">
+                                    <i class="fa fa-users"></i>
+                                    Meus Usuários
+                                </a>
+                            </li> -->
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/company-products']">
+                                    <i class="fa fa-cubes"></i>
+                                    Meus Produtos
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/export-merchandise']">
+                                    <i class="fa fa-file-text"></i>
+                                    Importar produtos
+                                </a>
+                            </li>
+                            <li routerLinkActive="current-page">
+                                <a [routerLink]="['/tutorial']">
+                                    <i class="fa fa-book" aria-hidden="true"></i>
+                                    Tutorial de instalação
+                                </a>
+                            </li>
+                            <li>
+                                <div class="version_li">
+                                    <i></i>
+                                    Versão: {{APP_VERSION}}
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /sidebar menu -->
+            </div>
+        </div>
+
+        <!-- top navigation -->
+        <div *ngIf="isLogged" class="top_nav">
+            <div class="nav_menu">
+                <nav>
+                    <div class="nav toggle">
+                        <a id="menu_toggle">
+                            <i class="fa fa-bars"></i>
+                        </a>
+                    </div>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="">
+                            <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown"
+                               aria-expanded="false">
+                                {{(user) ? user.name : "Menu"}}
+                                <span class=" fa fa-angle-down"></span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                <li>
+                                    <a href="javascript:;" [routerLink]="['/edit-user']">
+                                        <i class="fa fa-pencil pull-right"></i>
+                                        Editar meu perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:;" (click)="logout()">
+                                        <i class="fa fa-sign-out pull-right"></i>
+                                        Sair
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div [ngClass]="{'right_col': isLogged}" role="main">
+            <router-outlet></router-outlet>
+        </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+        <footer *ngIf="isLogged">
+            <div class="pull-right">WebFarma - Version: {{APP_VERSION}}</div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+    </div>
+</div>
+<div [style.display]="loading" class="loading">
+    <div>
+        <i class="fa fa-spin fa-circle-o-notch fa-5x"></i>
+    </div>
+</div>

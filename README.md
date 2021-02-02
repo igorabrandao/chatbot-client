@@ -1,21 +1,59 @@
-# ChatBot com DialogFlow
+# Base Angular
 
+This project was generated with [Angular CLI]
 
-### Projeto desenvolvido em Angular 7 com DialogFlow 
+## Getting Started
 
-[![](https://cdn-images-1.medium.com/max/800/0*KHLiJyA5vxzlERXW)](https://cdn-images-1.medium.com/max/800/0*KHLiJyA5vxzlERXW)
+### Prerequisites
 
+* NodeJS
+* NPM
+* Angular CLI
 
+### Installing
 
+Installing Node (v8.x)
+```
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+Installing Angular CLI
+```
+npm install -g @angular/cli
+```
+If necessary uses *sudo* before the command
 
-#### Tutorial 
-[Parte 1]( https://medium.com/@kheronn.machado/aplicacao-angular7-dados-abertos-part1-ba6b87573f86 )
+## Development server
 
-[Parte 2]( https://medium.com/@kheronn.machado/chatbot-angular7-dialogflow-part1-16abd26cce62)
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
+## Running in a custom environment
 
+At first, you have to create a file called environment.custom.ts under environment folder
 
-Baixe o arquivo e na pasta do projeto, execute no terminal
-`npm install`
+Run `ng server -env custom`
 
+## Build
 
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
+
+## Build Production
+
+Run `ng build -env prod`
+
+## Running unit tests
+
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+## Running end-to-end tests
+
+Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+Before running the tests make sure you are serving the app via `ng serve`.
+
+##Troubles
+
+If the webpack watching function does not working on deep files, execute the command bellow:
+
+```
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+```

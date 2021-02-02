@@ -1,0 +1,32 @@
+<div class="login_wrapper">
+    <div class="animate form login_form">
+        <section class="login_content">
+            <img src='assets/images/logo.png' alt="logo">
+<!--            <img src='https://image.freepik.com/free-vector/abstract-logo-in-flame-shape_1043-44.jpg' alt="logo">-->
+
+            <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+                <div>
+                    <input type="email" name="email" formControlName="email" class="form-control" placeholder="Email"
+                           required=""/>
+                </div>
+                <div>
+                    <input type="password" name="password" formControlName="password" class="form-control"
+                           placeholder="Senha" required=""/>
+                </div>
+                <div>
+                    <input class="btn btn-primary btn-block" type="submit" value="ACESSAR SISTEMA"
+                           [disabled]="loginForm.invalid">
+                </div>
+
+                <p class="text-center"><a href="/password">Esqueci minha senha</a></p>
+
+                <div class="separator">
+                    <div>
+                        <p>©{{APP_YEAR}} | {{APP_NAME}} </p>
+                        <p class="small"> Version: {{APP_VERSION}} </p>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
