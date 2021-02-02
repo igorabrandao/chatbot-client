@@ -5,6 +5,7 @@ import { element } from 'protractor';
 // Custom services
 import { AuthClientHelper } from '../../core/helpers/auth/auth-client.helper';
 import { BootService } from '../../core/api/chatbot/chatbot.service';
+import { TransactionService } from '../../core/api/transaction/transaction.service';
 import { UserService } from '../../core/api/user/user.service';
 
 // Interfaces
@@ -52,10 +53,12 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      * Class constructor
      * 
      * @param chatBoot 
+     * @param transactionService 
      * @param userService 
      * @param auth 
      */
-    constructor(private chatBoot: BootService, private userService: UserService, private auth: AuthClientHelper) { }
+    constructor(private chatBoot: BootService, private transactionService: TransactionService,
+        private userService: UserService, private auth: AuthClientHelper) { }
 
     /**
      * Handle the initial page actions (only once)
@@ -93,6 +96,9 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     initBoot() {
         // Clear the message list
         this.messageList = [];
+
+        // Set the default interaction type
+        this.interactionType = 'message';
 
         // Try to retrieve the logged user
         this.loggedUser = this.auth.getUser();
