@@ -3,6 +3,7 @@ import { Component, ViewChild, ElementRef, OnDestroy, OnInit } from '@angular/co
 import { element } from 'protractor';
 
 // Custom services
+import { AuthClientHelper } from '../../core/helpers/auth/auth-client.helper';
 import { BootService } from '../../core/api/chatbot/chatbot.service';
 import { UserService } from '../../core/api/user/user.service';
 
@@ -51,9 +52,10 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      * Class constructor
      * 
      * @param chatBoot 
+     * @param userService 
      * @param auth 
      */
-    constructor(private chatBoot: BootService, private auth: UserService) { }
+    constructor(private chatBoot: BootService, private userService: UserService, private auth: AuthClientHelper) { }
 
     /**
      * Handle the initial page actions (only once)
@@ -92,17 +94,45 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         // Clear the message list
         this.messageList = [];
 
-        // Generate the welcome message
-        this.chatBoot.generateWelcomeMessage()
-            .then(data => {
-                if (data) {
-                    // Sent the welcome message
-                    this.sendChatbotMessage(data.message);
+        // Try to retrieve the logged user
+        this.loggedUser = this.auth.getUser();
 
-                    // Present the guest menu
-                    this.presentGuestMenu();
-                }
-            });
+        if (this.loggedUser !== undefined && this.loggedUser !== null) {
+            // Get the user object
+            this.loggedUser = this.auth.getUser().data;
+
+            // Sent the welcome message
+            this.sendChatbotMessage("Welcome back, " + this.loggedUser.name);
+
+            // Present the logged menu
+            this.presentLoggedMenu(this.loggedUser);
+        } else {
+            // Generate the welcome message
+            this.chatBoot.generateWelcomeMessage()
+                .then(data => {
+                    if (data) {
+                        // Sent the welcome message
+                        this.sendChatbotMessage(data.message);
+
+                        // Present the guest menu
+                        this.presentGuestMenu();
+                    }
+                });
+        }
+    }
+
+    /**
+     * Function to send an automatic chatbot message
+     * 
+     * @param message_ 
+     */
+    sendChatbotMessage(message_: string) {
+        if (message_ !== undefined && message_ != '') {
+            // Add the message to the list
+            setTimeout(() => {
+                this.messageList.push({ sender: 'boot', message: message_, date: new Date() });
+            }, 500);
+        }
     }
 
     /**
@@ -140,20 +170,6 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Function to send an automatic chatbot message
-     * 
-     * @param message_ 
-     */
-    sendChatbotMessage(message_: string) {
-        if (message_ !== undefined && message_ != '') {
-            // Add the message to the list
-            setTimeout(() => {
-                this.messageList.push({ sender: 'boot', message: message_, date: new Date() });
-            }, 500);
-        }
-    }
-
-    /**
      * Function to handle custom interactions
      * 
      * @param data_ 
@@ -168,6 +184,22 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 this.loginInputHandler('');
 
                 break;
+            case 'logout':
+                    // Set the interaction as a login input
+                    this.interactionType = 'logout';
+    
+                    // Perform logout
+                    this.auth.logout();
+
+                    // Send a user message
+                    this.sendChatbotMessage('You are being disconnected...');
+
+                    // Reinitialize the chat
+                    setTimeout(() => {
+                        this.initBoot();
+                    }, 2500);
+    
+                    break;
             default:
                 // Set the interaction as a simple message
                 this.interactionType = 'message';
@@ -238,19 +270,19 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             // Request the user email
             this.sendChatbotMessage('Wait a second...');
 
-            this.auth.login({ email: this.conversationData['email'], password: this.conversationData['passwd'] })
+            this.userService.login({ email: this.conversationData['email'], password: this.conversationData['passwd'] })
                 .then(data => {
                     if (data) {
                         // Get the logged user
-                        this.loggedUser = data;
+                        this.auth.setUser({ data });
 
                         // Handle the bot responde
-                        this.sendChatbotMessage('Hey ' + this.loggedUser.name + '! It is good to have you onboard :)');
+                        this.sendChatbotMessage('Hey ' + data.name + '! It is good to have you onboard :)');
 
                         // TODO: Set the default currency
 
                         // Show the logged menu
-                        this.presentLoggedMenu(this.loggedUser);
+                        this.presentLoggedMenu(data);
 
                     } else {
                         // Handle the bot responde
@@ -261,6 +293,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             console.log(error);
         }
     }
+
 
     // ***************************************************
     // ** Menu handlers
@@ -281,10 +314,12 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             message = "Which option you'd like to pick? <br/><br/>";
         }
 
-        message += "1) Deposit money into your account <br/>";
-        message += "2) Withdraw money <br/>";
-        message += "3) Show your account balance <br/>";
-        message += "4) Set your default currency";
+        message += "-Deposit money into your account <br/>";
+        message += "-Withdraw money <br/>";
+        message += "-Show your account balance <br/>";
+        message += "-Set your default currency <br/>";
+        message += "-Get currency quotation <br/>";
+        message += "-Logout";
 
         // Present the options
         this.sendChatbotMessage(message);
@@ -298,9 +333,9 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      */
     presentGuestMenu() {
         let message: string = "Which option you'd like to pick? <br/><br/>";
-        message += "1) Login <br/>";
-        message += "2) Register <br/>";
-        message += "3) Get currency quotation <br/>";
+        message += "-Login <br/>";
+        message += "-Register <br/>";
+        message += "-Get currency quotation <br/>";
 
         // Present the options
         this.sendChatbotMessage(message);

@@ -46,7 +46,7 @@ export class AuthClientHelper {
         this.storage.store('user', sjcl.encrypt('123', JSON.stringify(user), {}, {}).replace(/,/g, ',\n'));
     }
 
-    clear() {
+    logout() {
         this.user.next([]);
         this.isLogged.next(false);
         this.storage.clear();

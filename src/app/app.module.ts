@@ -39,7 +39,7 @@ registerLocaleData(localePT);
         BrowserAnimationsModule,
         ToastrModule.forRoot(),
         Ng2Webstorage.forRoot({
-            prefix: 'WebFarma'
+            prefix: 'Chatbot'
         }),
         ReactiveFormsModule,
         HttpClientModule,
