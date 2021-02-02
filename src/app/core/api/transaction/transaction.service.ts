@@ -20,5 +20,5 @@ export class TransactionService extends BaseService {
         path: '/convert-currency',
         skipAuthorization: true
     })
-    sendMessage: IResourceMethod<{ from_currency: string, to_currency: string, amount: number }, Transaction>;
+    convertCurrency: IResourceMethod<{ from_currency: string, to_currency: string, amount: number }, Transaction>;
 }

@@ -43,6 +43,9 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     conversationData: any = {
         email: '',
         passwd: '',
+        amount: 0,
+        from_currency: '',
+        to_currency: '',
     };
 
     // ***************************************************
@@ -111,7 +114,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             this.sendChatbotMessage("Welcome back, " + this.loggedUser.name);
 
             // Present the logged menu
-            this.presentLoggedMenu(this.loggedUser);
+            this.presentMenu();
         } else {
             // Generate the welcome message
             this.chatBoot.generateWelcomeMessage()
@@ -120,8 +123,8 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                         // Sent the welcome message
                         this.sendChatbotMessage(data.message);
 
-                        // Present the guest menu
-                        this.presentGuestMenu();
+                        // Present the menu
+                        this.presentMenu();
                     }
                 });
         }
@@ -151,6 +154,14 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                     this.loginInputHandler(this.userMessage);
                 } else {
                     this.loginInputHandler('');
+                }
+
+                break;
+            case 'quotation':
+                if (this.userMessage !== undefined && this.userMessage != '') {
+                    this.quotationInputHandler(this.userMessage);
+                } else {
+                    this.quotationInputHandler('');
                 }
 
                 break;
@@ -191,21 +202,29 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
                 break;
             case 'logout':
-                    // Set the interaction as a login input
-                    this.interactionType = 'logout';
-    
-                    // Perform logout
-                    this.auth.logout();
+                // Set the interaction as a login input
+                this.interactionType = 'logout';
 
-                    // Send a user message
-                    this.sendChatbotMessage('You are being disconnected...');
+                // Perform logout
+                this.auth.logout();
 
-                    // Reinitialize the chat
-                    setTimeout(() => {
-                        this.initBoot();
-                    }, 2500);
-    
-                    break;
+                // Send a user message
+                this.sendChatbotMessage('You are being disconnected...');
+
+                // Reinitialize the chat
+                setTimeout(() => {
+                    this.initBoot();
+                }, 2500);
+
+                break;
+            case 'quotation':
+                // Set the interaction as a login input
+                this.interactionType = 'quotation';
+
+                // Call the quotation handler
+                this.quotationInputHandler('');
+
+                break;
             default:
                 // Set the interaction as a simple message
                 this.interactionType = 'message';
@@ -269,6 +288,50 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Function to handle the login input
+     * 
+     * @param message_ 
+     */
+    quotationInputHandler(message_: string) {
+        // Check the input context
+        if (message_ == '') {
+            // Request the quotation info
+            this.sendChatbotMessage(
+                'To perform an currency exchange, use the sintax: <br/><br/>' +
+                '<i><strong>e.g: 25 USD to EUR</strong></i>'
+            );
+        } else {
+            // Add the message to the list
+            this.messageList.push({ sender: this.defaultSender, message: this.userMessage, date: new Date() });
+
+            // Clear the input
+            this.userMessage = '';
+
+            // Split the input
+            let input = message_.split(' ');
+
+            // Validate the input
+            if (input.length == 4 && !isNaN(parseFloat(input[0])) && input[2] == 'to'
+                && input[1].length < 5 && input[3].length < 5) {
+                // Parse the input
+                this.conversationData['amount'] = parseFloat(input[0]);
+                this.conversationData['from_currency'] = input[1];
+                this.conversationData['to_currency'] = input[3];
+
+                // Try to perform the currency conversion
+                this.convertCurrency();
+            } else {
+                // Repeat the input
+                this.quotationInputHandler('');
+            }
+        }
+    }
+
+    // ***************************************************
+    // ** Data handlers
+    // ***************************************************
+
+    /**
      * Function to perform login
      */
     doLogin() {
@@ -300,10 +363,60 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Function to perform currency conversion
+     */
+    convertCurrency() {
+        try {
+            // Request the user email
+            this.sendChatbotMessage('Wait a second...');
+
+            this.transactionService.convertCurrency(
+                {
+                    from_currency: this.conversationData['from_currency'],
+                    to_currency: this.conversationData['to_currency'],
+                    amount: this.conversationData['amount']
+                })
+                .then(data => {
+                    if (data) {
+                        // Handle the bot responde
+                        this.sendChatbotMessage(data.amount + ' ' + data.from_currency + " is equivalent to " + 
+                        data.converted_amount + ' ' + data.to_currency);
+
+                        setTimeout(() => {
+                            // Show the logged menu
+                            this.presentMenu();
+                        }, 2000);
+
+                    } else {
+                        // Handle the bot responde
+                        this.sendChatbotMessage('Oh sorry, I could not found your data, lets try again ;)');
+
+                        // Repeat the input
+                        this.quotationInputHandler('');
+                    }
+                });
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     // ***************************************************
     // ** Menu handlers
     // ***************************************************
+
+    /**
+     * Function to decide which menu present
+     */
+    presentMenu() {
+        if (this.loggedUser !== undefined && this.loggedUser !== null) {
+            // Present the logged menu
+            this.presentLoggedMenu(this.loggedUser);
+        } else {
+            // Present the guest menu
+            this.presentGuestMenu();
+        }
+    }
 
     /**
      * Function to show the logged menu

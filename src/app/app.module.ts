@@ -6,6 +6,7 @@ import { Ng2Webstorage } from 'ngx-webstorage';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { UserService } from './core/api/user/user.service';
+import { TransactionService } from './core/api/transaction/transaction.service';
 import { BootService } from './core/api/chatbot/chatbot.service';
 
 import { AuthClientHelper } from './core/helpers/auth/auth-client.helper';
@@ -53,6 +54,7 @@ registerLocaleData(localePT);
     providers: [
         UserService,
         BootService,
+        TransactionService,
         AuthClientHelper,
         ImageHelper,
         SpinnerHelper,
