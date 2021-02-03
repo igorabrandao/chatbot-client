@@ -7,6 +7,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { UserService } from './core/api/user/user.service';
 import { TransactionService } from './core/api/transaction/transaction.service';
+import { WalletService } from './core/api/wallet/wallet.service';
 import { BootService } from './core/api/chatbot/chatbot.service';
 
 import { AuthClientHelper } from './core/helpers/auth/auth-client.helper';
@@ -55,6 +56,7 @@ registerLocaleData(localePT);
         UserService,
         BootService,
         TransactionService,
+        WalletService,
         AuthClientHelper,
         ImageHelper,
         SpinnerHelper,

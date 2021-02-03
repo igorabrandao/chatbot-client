@@ -6,6 +6,7 @@ import { element } from 'protractor';
 import { AuthClientHelper } from '../../core/helpers/auth/auth-client.helper';
 import { BootService } from '../../core/api/chatbot/chatbot.service';
 import { TransactionService } from '../../core/api/transaction/transaction.service';
+import { WalletService } from '../../core/api/wallet/wallet.service';
 import { UserService } from '../../core/api/user/user.service';
 
 // Interfaces
@@ -47,6 +48,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         amount: 0,
         from_currency: '',
         to_currency: '',
+        wallet_currency: ''
     };
 
     // ***************************************************
@@ -54,15 +56,16 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     // ***************************************************
 
     /**
-     * Class constructor
+     * Class constructor     
      * 
      * @param chatBoot 
      * @param transactionService 
+     * @param walletService 
      * @param userService 
      * @param auth 
      */
     constructor(private chatBoot: BootService, private transactionService: TransactionService,
-        private userService: UserService, private auth: AuthClientHelper) { }
+        private walletService: WalletService, private userService: UserService, private auth: AuthClientHelper) { }
 
     /**
      * Handle the initial page actions (only once)
@@ -233,10 +236,18 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 // Set the interaction as a login input
                 this.interactionType = 'register';
 
-                // Call the login handler
+                // Call the register handler
                 this.registerInputHandler('');
 
                 break;
+            case 'setCurrency':
+                    // Set the interaction as the currency set
+                    this.interactionType = 'setCurrency';
+    
+                    // Call the set currency handler
+                    this.setCurrencyInputHandler('');
+    
+                    break;
             case 'quotation':
                 // Set the interaction as a login input
                 this.interactionType = 'quotation';
@@ -308,7 +319,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Function to handle the login input
+     * Function to handle the register input
      * 
      * @param message_ 
      */
@@ -371,7 +382,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Function to handle the login input
+     * Function to handle the quotation input
      * 
      * @param message_ 
      */
@@ -408,6 +419,15 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 this.quotationInputHandler('');
             }
         }
+    }
+
+    /**
+     * Function to handle the set currency input
+     * 
+     * @param message_ 
+     */
+    setCurrencyInputHandler(message_: string) {
+        /* TODO */
     }
 
     // ***************************************************
@@ -487,7 +507,14 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                     // Handle the bot responde
                     this.sendChatbotMessage('Hey ' + data.name + '! It is good to have you onboard :)');
 
-                    // TODO: Set the default currency
+                    // Set the default currency
+                    this.chatBoot.sendMessage({ message: 'setCurrency' })
+                        .then(data => {
+                            if (data) {
+                                // Handle the bot responde
+                                this.chatbotResponseHandler(data);
+                            }
+                        });
 
                     // Show the logged menu
                     this.presentLoggedMenu(data);
