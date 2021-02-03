@@ -24,9 +24,11 @@ export class BaseService extends Resource implements ErrorHandler {
         let headers = super.$getHeaders();
 
         // Extending our headers with Authorization
-        if (!methodOptions.skipAuthorization) {
+        headers = this.auth.extendHeaders(headers);
+        
+        /*if (!methodOptions.skipAuthorization) {
             headers = this.auth.extendHeaders(headers);
-        }
+        }*/
 
         return headers;
     }

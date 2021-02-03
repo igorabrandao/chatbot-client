@@ -31,6 +31,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     // Model attributes
     messageList: Message[];
     userModel: User;
+    walletList: Wallet[];
 
     // User sender
     defaultSender: string = 'me';
@@ -110,7 +111,13 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         // Try to retrieve the logged user
         if (this.auth.getUser() !== undefined && this.auth.getUser() !== null) {
             // Get the user object
-            this.userModel = this.auth.getUser().data;
+            if (this.auth.getUser().data !== undefined) {
+                this.userModel = this.auth.getUser().data;
+            } else if (this.auth.getUser().result !== undefined) {
+                this.userModel = this.auth.getUser().result;
+            } else {
+                this.userModel = this.auth.getUser();
+            }
 
             // Sent the welcome message
             this.sendChatbotMessage("Welcome back, " + this.userModel.name);
@@ -122,6 +129,9 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             if (this.userModel == null || this.userModel == undefined) {
                 this.userModel = { name: '', email: '', cpf: '', password: '', birth_date: '' };
             }
+
+            // Clear the wallet list
+            this.walletList = [];
 
             // Generate the welcome message
             this.chatBoot.generateWelcomeMessage()
@@ -180,6 +190,14 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 }
 
                 break;
+            case 'setCurrency':
+                if (this.userMessage !== undefined && this.userMessage != '') {
+                    this.setDefaultWalletInputHandler(this.userMessage);
+                } else {
+                    this.setDefaultWalletInputHandler('');
+                }
+
+                break;
             default:
                 if (this.userMessage !== undefined && this.userMessage != '') {
                     // Add the message to the list
@@ -189,7 +207,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                     this.chatBoot.sendMessage({ message: this.userMessage })
                         .then(data => {
                             if (data) {
-                                // Handle the bot responde
+                                // Handle the bot response
                                 this.chatbotResponseHandler(data);
                             }
                         });
@@ -241,13 +259,13 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
                 break;
             case 'setCurrency':
-                    // Set the interaction as the currency set
-                    this.interactionType = 'setCurrency';
-    
-                    // Call the set currency handler
-                    this.setCurrencyInputHandler('');
-    
-                    break;
+                // Set the interaction as the currency set
+                this.interactionType = 'setCurrency';
+
+                // Call the set currency handler
+                this.setDefaultWalletInputHandler('');
+
+                break;
             case 'quotation':
                 // Set the interaction as a login input
                 this.interactionType = 'quotation';
@@ -422,12 +440,33 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Function to handle the set currency input
+     * Function to set the default wallet currency
      * 
      * @param message_ 
      */
-    setCurrencyInputHandler(message_: string) {
-        /* TODO */
+    setDefaultWalletInputHandler(message_: string) {
+        // Check the input context
+        if (message_ == '') {
+            // Request the quotation info
+            this.sendChatbotMessage("Now, let's choose the currency ($$$)");
+        } else {
+            // Add the message to the list
+            this.messageList.push({ sender: this.defaultSender, message: this.userMessage, date: new Date() });
+
+            // Parse the input
+            this.conversationData['wallet_currency'] = this.userMessage;
+
+            // Clear the input
+            this.userMessage = '';
+
+            if (this.conversationData['wallet_currency'] != '') {
+                // Try to set the default wallet
+                this.setDefaultWallet();
+            } else {
+                // Repeat the input
+                this.setDefaultWalletInputHandler('');
+            }
+        }
     }
 
     // ***************************************************
@@ -438,167 +477,181 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      * Function to perform login
      */
     doLogin() {
-        let errorMessage = 'Oh sorry, I could not found your data, lets try again ;)';
+        this.sendChatbotMessage('Wait a second...');
 
-        try {
-            // Request the user email
-            this.sendChatbotMessage('Wait a second...');
+        // Try to login
+        this.userService.login({ email: this.conversationData['email'], password: this.conversationData['passwd'] })
+            .then(result => {
+                // Check the login status
+                if (result !== null && result !== undefined) {
+                    // Get the logged user
+                    this.auth.setUser(result);
 
-            this.userService.login({ email: this.conversationData['email'], password: this.conversationData['passwd'] })
-                .then(data => {
-                    if (data) {
-                        // Get the logged user
-                        this.auth.setUser({ data });
-
-                        // Handle the bot responde
-                        this.sendChatbotMessage('Hey ' + data.name + '! It is good to have you onboard :)');
-
-                        // TODO: Set the default currency
-
-                        // Show the logged menu
-                        this.presentLoggedMenu(data);
-
-                    } else {
-                        // Handle the bot response
-                        this.sendChatbotMessage(errorMessage);
-
-                        // Repeat the input
-                        this.loginInputHandler('');
-                    }
-                }).catch(function (reason) {
                     // Handle the bot response
-                    this.sendChatbotMessage(errorMessage);
+                    this.sendChatbotMessage('Hey ' + result.name + '! It is good to have you onboard :)');
+
+                    // Check if the user already have a default wallet
+                    this.walletService.checkDefaultWallet({ user_id: result.id }).then(wallet => {
+                        if (wallet !== null && wallet !== undefined) {
+                            // Show the logged menu
+                            this.presentLoggedMenu(result);
+                        } else {
+                            // Call the set default wallet
+                            this.setDefaultWalletInputHandler('');
+                        }
+                    });
+                } else {
+                    // Handle the bot response
+                    this.sendChatbotMessage('Oh sorry, I could not found your data, lets try again ;)');
+
+                    // Clear the login fields
+                    this.conversationData['email'] = '';
+                    this.conversationData['passwd'] = '';
 
                     // Repeat the input
                     this.loginInputHandler('');
-                });
-        } catch (error) {
-            console.log(error);
-
-            // Handle the bot response
-            this.sendChatbotMessage(errorMessage);
-
-            // Repeat the input
-            this.loginInputHandler('');
-        }
+                }
+            });
     }
 
     /**
      * Function to perform login
      */
     registerUser() {
-        let errorMessage = 'Oh sorry, I could not register you, lets try again ;)';
+        this.sendChatbotMessage('Wait a second...');
 
-        try {
-            // Request the user email
-            this.sendChatbotMessage('Wait a second...');
-
-            this.userService.register({
-                name: this.userModel.name,
-                email: this.userModel.email,
-                cpf: this.userModel.cpf,
-                password: this.userModel.password,
-                birth_date: this.userModel.birth_date
-            }).then(data => {
-                if (data) {
+        // Try to register the user
+        this.userService.register({
+            name: this.userModel.name, email: this.userModel.email, cpf: this.userModel.cpf,
+            password: this.userModel.password, birth_date: this.userModel.birth_date
+        })
+            .then(result => {
+                // Check the register status
+                if (result !== null && result !== undefined) {
                     // Get the logged user
-                    this.auth.setUser({ data });
+                    this.auth.setUser(result);
 
-                    // Handle the bot responde
-                    this.sendChatbotMessage('Hey ' + data.name + '! It is good to have you onboard :)');
+                    // Handle the bot response
+                    this.sendChatbotMessage('Hey ' + result.name + '! It is good to have you onboard :)');
 
-                    // Set the default currency
-                    this.chatBoot.sendMessage({ message: 'setCurrency' })
-                        .then(data => {
-                            if (data) {
-                                // Handle the bot responde
-                                this.chatbotResponseHandler(data);
-                            }
-                        });
-
-                    // Show the logged menu
-                    this.presentLoggedMenu(data);
-
+                    // Check if the user already have a default wallet
+                    this.walletService.checkDefaultWallet({ user_id: result.id }).then(wallet => {
+                        if (wallet !== null && wallet !== undefined) {
+                            // Show the logged menu
+                            this.presentLoggedMenu(result);
+                        } else {
+                            // Call the set default wallet
+                            this.setDefaultWalletInputHandler('');
+                        }
+                    });
                 } else {
                     // Handle the bot response
-                    this.sendChatbotMessage(errorMessage);
+                    this.sendChatbotMessage('Oh sorry, I could not register you, lets try again ;)');
+
+                    // Clear the current user data
+                    this.userModel = { name: '', email: '', cpf: '', password: '', birth_date: '' };
 
                     // Repeat the input
                     this.registerInputHandler('');
                 }
-            }).catch(function (reason) {
-                // Handle the bot response
-                this.sendChatbotMessage(errorMessage);
-
-                // Repeat the input
-                this.registerInputHandler('');
             });
-        } catch (error) {
-            console.log(error);
-
-            // Handle the bot response
-            this.sendChatbotMessage(errorMessage);
-
-            // Repeat the input
-            this.registerInputHandler('');
-        }
     }
 
     /**
      * Function to perform currency conversion
      */
     convertCurrency() {
-        let errorMessage = 'Oh sorry, I could not convert the money, lets try again ;)';
+        this.sendChatbotMessage('Wait a second...');
 
-        try {
-            // Request the user email
-            this.sendChatbotMessage('Wait a second...');
+        // Try to covnert currency
+        this.transactionService.convertCurrency({
+            from_currency: this.conversationData['from_currency'],
+            to_currency: this.conversationData['to_currency'],
+            amount: this.conversationData['amount']
+        }).then(result => {
+            // Check the conversion status
+            if (result !== null && result !== undefined) {
+                // Handle the bot response
+                this.sendChatbotMessage(result.amount + ' ' + result.from_currency + " is equivalent to " +
+                    result.converted_amount + ' ' + result.to_currency);
 
-            this.transactionService.convertCurrency(
-                {
-                    from_currency: this.conversationData['from_currency'],
-                    to_currency: this.conversationData['to_currency'],
-                    amount: this.conversationData['amount']
-                })
-                .then(data => {
-                    if (data) {
-                        // Handle the bot responde
-                        this.sendChatbotMessage(data.amount + ' ' + data.from_currency + " is equivalent to " +
-                            data.converted_amount + ' ' + data.to_currency);
+                setTimeout(() => {
+                    // Show the logged menu
+                    this.presentMenu();
+                }, 2000);
+            } else {
+                // Handle the bot response
+                this.sendChatbotMessage('Oh sorry, I could not convert the money, lets try again ;)');
 
-                        setTimeout(() => {
-                            // Show the logged menu
-                            this.presentMenu();
-                        }, 2000);
+                // Clear the login fields
+                this.conversationData['from_currency'] = '';
+                this.conversationData['to_currency'] = '';
+                this.conversationData['amount'] = '';
 
-                    } else {
-                        // Handle the bot response
-                        this.sendChatbotMessage(errorMessage);
-
-                        // Repeat the input
-                        this.quotationInputHandler('');
-                    }
-                }).catch(function (reason) {
-                    // Handle the bot response
-                    this.sendChatbotMessage(errorMessage);
-
-                    // Repeat the input
-                    this.quotationInputHandler('');
-                });
-        } catch (error) {
-            console.log(error);
-
-            // Handle the bot response
-            this.sendChatbotMessage(errorMessage);
-
-            // Repeat the input
-            this.quotationInputHandler('');
-        }
+                // Repeat the input
+                this.quotationInputHandler('');
+            }
+        });
     }
 
-    // TODO: Implement setDefault Wallet
+    /**
+     * Function to set the default wallet
+     */
+    setDefaultWallet() {
+        this.sendChatbotMessage('Wait a second...');
 
-    // TODO: Implement get Wallet
+        // Try to covnert currency
+        this.walletService.checkWallet({ user_id: this.userModel.id, currency: this.conversationData['wallet_currency'] })
+            .then(wallet => {
+                if (wallet !== null && wallet !== undefined && Object.keys(wallet).length > 0) {
+                    // The wallet already exist, just set it as default
+                    this.walletService.setDefaultWallet({ code: wallet.code })
+                        .then(result => {
+                            if (result) {
+                                // Handle the bot response
+                                this.sendChatbotMessage("The wallet " + wallet.currency + " was set as default ");
+
+                                setTimeout(() => {
+                                    // Show the logged menu
+                                    this.presentMenu();
+                                }, 2000);
+                            } else {
+                                // Handle the bot response
+                                this.sendChatbotMessage('Could not set up the wallet, lets try again ;)');
+                
+                                // Clear the wallet fields
+                                this.conversationData['wallet_currency'] = '';
+                
+                                // Repeat the input
+                                this.setDefaultWalletInputHandler('');
+                            }
+                        });
+                } else {
+                    // The wallet do not exist, needs to created it
+                    this.walletService.registerWallet({ user_id: this.userModel.id, currency: this.conversationData['wallet_currency'] })
+                        .then(newWallet => {
+                            if (newWallet !== null && newWallet !== undefined && Object.keys(newWallet).length > 0) {
+                                // Handle the bot response
+                                this.sendChatbotMessage("The wallet " + newWallet.currency + " was successfully created!");
+
+                                setTimeout(() => {
+                                    // Show the logged menu
+                                    this.presentMenu();
+                                }, 2000);
+                            } else {
+                                // Handle the bot response
+                                this.sendChatbotMessage('Could not set up the wallet, lets try again ;)');
+                
+                                // Clear the wallet fields
+                                this.conversationData['wallet_currency'] = '';
+                
+                                // Repeat the input
+                                this.setDefaultWalletInputHandler('');
+                            }
+                        });
+                }
+            });
+    }
 
     // ***************************************************
     // ** Menu handlers
@@ -627,16 +680,11 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         let message: string = "";
 
         // Present the options
-        if (user_) {
-            message = user_.name + ", which option you'd like to pick? <br/><br/>";
-        } else {
-            message = "Which option you'd like to pick? <br/><br/>";
-        }
-
+        message = "Which option you'd like to pick? <br/><br/>";
         message += "-Deposit money into your account <br/>";
         message += "-Withdraw money <br/>";
         message += "-Show your account balance <br/>";
-        message += "-Set your default currency <br/>";
+        message += "-Set your default currency or create a new one <br/>";
         message += "-Get currency quotation <br/>";
         message += "-Logout";
 

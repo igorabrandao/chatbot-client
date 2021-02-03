@@ -12,19 +12,15 @@ import { Wallet } from '../../interfaces/wallet';
 })
 export class WalletService extends BaseService {
 
-    // ***************************************************
-    // ** Resource action handlers
-    // ***************************************************
-
     /**
      * Register a new wallet
      */
     @ResourceAction({
         method: ResourceRequestMethod.Post,
         path: '/register-wallet',
-        skipAuthorization: true
+        skipAuthorization: false
     })
-    actionRegisterWallet: IResourceMethod<{ user_id: number, currency: string }, Wallet>;
+    registerWallet: IResourceMethod<{ user_id: number, currency: string }, Wallet>;
 
     /**
      * Set a wallet as default
@@ -32,85 +28,27 @@ export class WalletService extends BaseService {
     @ResourceAction({
         method: ResourceRequestMethod.Post,
         path: '/set-default-wallet',
-        skipAuthorization: true
+        skipAuthorization: false
     })
-    actionSetDefaultWallet: IResourceMethod<{ code: string }, Wallet>;
+    setDefaultWallet: IResourceMethod<{ code: string }, Wallet>;
+
+    /**
+     * Check if the wallet already exists
+     */
+    @ResourceAction({
+        method: ResourceRequestMethod.Post,
+        path: '/check-wallet',
+        skipAuthorization: false
+    })
+    checkWallet: IResourceMethod<{ user_id: number, currency: string }, Wallet>;
 
     /**
      * Check if the user already have a default wallet
      */
     @ResourceAction({
         method: ResourceRequestMethod.Post,
-        path: '/set-default-wallet',
-        skipAuthorization: true
+        path: '/check-default-wallet',
+        skipAuthorization: false
     })
-    actionCheckDefaultWallet: IResourceMethod<{ user_id: number }, Wallet>;
-
-    // ***************************************************
-    // ** Service functions handlers
-    // ***************************************************
-
-    /**
-     * Function to register a new wallet
-     * 
-     * @param user_id_ 
-     * @param currency_ 
-     */
-    registerWallet(user_id_: number, currency_: string) {
-        try {
-            this.actionRegisterWallet({user_id: user_id_, currency: currency_})
-                .then(data => {
-                    if (data) {
-                        return data;
-                    } else {
-                        return false;
-                    }
-                });
-        } catch (error) {
-            console.log(error);
-            return false;
-        }
-    }
-
-    /**
-     * Function to set the wallet as default
-     * 
-     * @param code_
-     */
-    setDefaultWallet(code_: string) {
-        try {
-            this.actionSetDefaultWallet({code: code_})
-                .then(data => {
-                    if (data) {
-                        return data;
-                    } else {
-                        return false;
-                    }
-                });
-        } catch (error) {
-            console.log(error);
-            return false;
-        }
-    }
-
-    /**
-     * Function to check if the user already have a default wallet
-     * 
-     * @param user_id_
-     */
-    checkDefaultWallet(user_id_: number) {
-        try {
-            this.actionCheckDefaultWallet({user_id: user_id_})
-                .then(data => {
-                    if (data) {
-                        return data;
-                    } else {
-                        return false;
-                    }
-                });
-        } catch (error) {
-            console.log(error);
-            return false;
-        }
-    }
+    checkDefaultWallet: IResourceMethod<{ user_id: number }, Wallet>;
 }

@@ -41,7 +41,14 @@ export class AuthClientHelper {
     }
 
     setUser(user) {
-        this.user.next(user);
+        if (user.data !== undefined && user.data !== null) {
+            this.user.next(user.data);
+        } else if (user.result !== undefined && user.result !== null) {
+            this.user.next(user.result);
+        } else {
+            this.user.next(user);
+        }
+
         this.isLogged.next(true);
         this.storage.store('user', sjcl.encrypt('123', JSON.stringify(user), {}, {}).replace(/,/g, ',\n'));
     }

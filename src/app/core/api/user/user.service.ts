@@ -66,7 +66,7 @@ export class UserService extends BaseService {
         method: ResourceRequestMethod.Post,
         path: '/recover-password'
     })
-    recoverPassword: IResourceMethod<{ email: string }, any>;
+    actionRecoverPassword: IResourceMethod<{ email: string }, any>;
 
     /**
      * Reset password
@@ -75,7 +75,7 @@ export class UserService extends BaseService {
         method: ResourceRequestMethod.Post,
         path: '/reset-password'
     })
-    resetPassword: IResourceMethod<any, any>;
+    actionResetPassword: IResourceMethod<any, any>;
 
     /**
      * Check recovery token
@@ -84,5 +84,9 @@ export class UserService extends BaseService {
         method: ResourceRequestMethod.Post,
         path: '/check-reset-password-token'
     })
-    checkResetPasswordToken: IResourceMethod<any, any>;
+    actionCheckResetPasswordToken: IResourceMethod<any, any>;
+
+    // ***************************************************
+    // ** Service functions handlers
+    // ***************************************************
 }
