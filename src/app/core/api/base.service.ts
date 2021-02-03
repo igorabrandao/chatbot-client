@@ -1,10 +1,10 @@
-import {ErrorHandler, Injectable} from '@angular/core';
-import {AuthClientHelper} from '../helpers/auth/auth-client.helper';
-import {environment} from '../../../environments/environment';
-import {IResourceActionInner, IResourceResponse, Resource} from '@ngx-resource/core';
-import {ResourceHandler} from '@ngx-resource/core/src/ResourceHandler';
-import {ToastrService} from 'ngx-toastr';
-import {SpinnerHelper} from '../helpers/spinner/spinner.helper';
+import { ErrorHandler, Injectable } from '@angular/core';
+import { AuthClientHelper } from '../helpers/auth/auth-client.helper';
+import { environment } from '../../../environments/environment';
+import { IResourceActionInner, IResourceResponse, Resource } from '@ngx-resource/core';
+import { ResourceHandler } from '@ngx-resource/core/src/ResourceHandler';
+import { ToastrService } from 'ngx-toastr';
+import { SpinnerHelper } from '../helpers/spinner/spinner.helper';
 
 /**
  Generated class for the BaseService.
@@ -15,8 +15,8 @@ export class BaseService extends Resource implements ErrorHandler {
     public static BASE_URL = environment.apiUrl;
 
     constructor(requestHandler: ResourceHandler,
-                private auth: AuthClientHelper,
-                private toastr: ToastrService) {
+        private auth: AuthClientHelper,
+        private toastr: ToastrService) {
         super(requestHandler);
     }
 
@@ -38,7 +38,7 @@ export class BaseService extends Resource implements ErrorHandler {
         const body_0 = resp.body[0];
 
         if (!options.actionOptions.skipError) {
-            let errorMsg = 'Ocorreu um erro';
+            let errorMsg = 'An error has occurred';
 
             if (body && body.error && body.error.length && body.error[0].field) {
                 errorMsg = body.error.map(function (e) {
@@ -58,7 +58,7 @@ export class BaseService extends Resource implements ErrorHandler {
                 errorMsg = body_0.message;
             }
 
-            this.toastr.error(errorMsg, 'Erro');
+            this.toastr.error(errorMsg, 'Error');
         }
 
         return super.$handleErrorResponse(options, resp);
@@ -80,5 +80,4 @@ export class BaseService extends Resource implements ErrorHandler {
     handleError(err: any): void {
         console.error(err);
     }
-
 }

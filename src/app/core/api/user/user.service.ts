@@ -50,6 +50,16 @@ export class UserService extends BaseService {
     login: IResourceMethod<{ email: string, password: string }, User>;
 
     /**
+     * Register user
+     */
+    @ResourceAction({
+        method: ResourceRequestMethod.Post,
+        path: '/register-user',
+        skipAuthorization: true
+    })
+    register: IResourceMethod<{ name: string, email: string, cpf: string, password: string, birth_date: string }, User>;
+
+    /**
      * Recover password
      */
     @ResourceAction({

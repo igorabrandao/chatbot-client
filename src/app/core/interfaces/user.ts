@@ -8,4 +8,5 @@ export interface User {
     updated_at?: string;
     access_token?: string;
     password?: string;
+    birth_date?: string;
 }

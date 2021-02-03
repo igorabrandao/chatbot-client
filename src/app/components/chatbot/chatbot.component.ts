@@ -10,6 +10,7 @@ import { UserService } from '../../core/api/user/user.service';
 
 // Interfaces
 import { Message } from '../../core/interfaces/message';
+import { Wallet } from '../../core/interfaces/wallet';
 import { User } from '../../core/interfaces/user';
 
 @Component({
@@ -28,7 +29,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
     // Model attributes
     messageList: Message[];
-    loggedUser: User;
+    userModel: User;
 
     // User sender
     defaultSender: string = 'me';
@@ -104,18 +105,21 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         this.interactionType = 'message';
 
         // Try to retrieve the logged user
-        this.loggedUser = this.auth.getUser();
-
-        if (this.loggedUser !== undefined && this.loggedUser !== null) {
+        if (this.auth.getUser() !== undefined && this.auth.getUser() !== null) {
             // Get the user object
-            this.loggedUser = this.auth.getUser().data;
+            this.userModel = this.auth.getUser().data;
 
             // Sent the welcome message
-            this.sendChatbotMessage("Welcome back, " + this.loggedUser.name);
+            this.sendChatbotMessage("Welcome back, " + this.userModel.name);
 
             // Present the logged menu
             this.presentMenu();
         } else {
+            // Initialize the user modal
+            if (this.userModel == null || this.userModel == undefined) {
+                this.userModel = { name: '', email: '', cpf: '', password: '', birth_date: '' };
+            }
+
             // Generate the welcome message
             this.chatBoot.generateWelcomeMessage()
                 .then(data => {
@@ -154,6 +158,14 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                     this.loginInputHandler(this.userMessage);
                 } else {
                     this.loginInputHandler('');
+                }
+
+                break;
+            case 'register':
+                if (this.userMessage !== undefined && this.userMessage != '') {
+                    this.registerInputHandler(this.userMessage);
+                } else {
+                    this.registerInputHandler('');
                 }
 
                 break;
@@ -217,6 +229,14 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 }, 2500);
 
                 break;
+            case 'register':
+                // Set the interaction as a login input
+                this.interactionType = 'register';
+
+                // Call the login handler
+                this.registerInputHandler('');
+
+                break;
             case 'quotation':
                 // Set the interaction as a login input
                 this.interactionType = 'quotation';
@@ -254,10 +274,10 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         if (message_ == '') {
             if (this.conversationData['email'] === undefined || this.conversationData['email'] == '') {
                 // Request the user email
-                this.sendChatbotMessage('Please, inform you email');
+                this.sendChatbotMessage('Please, inform your email');
             } else if (this.conversationData['passwd'] === undefined || this.conversationData['passwd'] == '') {
-                // Request the user email
-                this.sendChatbotMessage('Now inform you password');
+                // Request the user password
+                this.sendChatbotMessage('Now inform your password');
             }
         } else {
             if (this.conversationData['email'] === undefined || this.conversationData['email'] == '') {
@@ -283,6 +303,69 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             } else {
                 // Try to login
                 this.doLogin();
+            }
+        }
+    }
+
+    /**
+     * Function to handle the login input
+     * 
+     * @param message_ 
+     */
+    registerInputHandler(message_: string) {
+        let currentField = '';
+
+        // Check the input context
+        if (message_ == '') {
+            if (this.userModel.name === undefined || this.userModel.name == '') {
+                this.sendChatbotMessage('Please, inform your name (required)');
+            } else if (this.userModel.email === undefined || this.userModel.email == '') {
+                this.sendChatbotMessage('Your email (required)');
+            } else if (this.userModel.cpf === undefined || this.userModel.cpf == '') {
+                this.sendChatbotMessage('Your CPF (required)');
+                this.sendChatbotMessage('example: 999.999.999-99');
+            } else if (this.userModel.password === undefined || this.userModel.password == '') {
+                this.sendChatbotMessage('Your password (required)');
+            } else if (this.userModel.birth_date === undefined || this.userModel.birth_date == '') {
+                this.sendChatbotMessage('Finally, inform your birth date (required)');
+                this.sendChatbotMessage('format: (mm-dd-YYYY)');
+            }
+        } else {
+            if (this.userModel.name === undefined || this.userModel.name == '') {
+                this.userModel.name = message_;
+                currentField = 'name';
+            } else if (this.userModel.email === undefined || this.userModel.email == '') {
+                this.userModel.email = message_;
+                currentField = 'email';
+            } else if (this.userModel.cpf === undefined || this.userModel.cpf == '') {
+                this.userModel.cpf = message_;
+                currentField = 'cpf';
+            } else if (this.userModel.password === undefined || this.userModel.password == '') {
+                this.userModel.password = message_;
+                currentField = 'password';
+            } else if (this.userModel.birth_date === undefined || this.userModel.birth_date == '') {
+                this.userModel.birth_date = message_;
+                currentField = 'birth_date';
+            }
+
+            if (currentField != 'password') {
+                // Add the message to the list
+                this.messageList.push({ sender: this.defaultSender, message: this.userMessage, date: new Date() });
+            } else {
+                // Add the message to the list
+                this.messageList.push({ sender: this.defaultSender, message: '******', date: new Date() });
+            }
+
+            // Clear the input
+            this.userMessage = '';
+
+            // Check if other input need to be informed
+            if (this.userModel.name == '' || this.userModel.email == '' || this.userModel.cpf == '' ||
+                this.userModel.password == '' || this.userModel.birth_date == '') {
+                this.registerInputHandler('');
+            } else {
+                // Try to register the user
+                this.registerUser();
             }
         }
     }
@@ -335,6 +418,8 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      * Function to perform login
      */
     doLogin() {
+        let errorMessage = 'Oh sorry, I could not found your data, lets try again ;)';
+
         try {
             // Request the user email
             this.sendChatbotMessage('Wait a second...');
@@ -354,12 +439,81 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                         this.presentLoggedMenu(data);
 
                     } else {
-                        // Handle the bot responde
-                        this.sendChatbotMessage('Oh sorry, I could not found your data, lets try again ;)');
+                        // Handle the bot response
+                        this.sendChatbotMessage(errorMessage);
+
+                        // Repeat the input
+                        this.loginInputHandler('');
                     }
+                }).catch(function (reason) {
+                    // Handle the bot response
+                    this.sendChatbotMessage(errorMessage);
+
+                    // Repeat the input
+                    this.loginInputHandler('');
                 });
         } catch (error) {
             console.log(error);
+
+            // Handle the bot response
+            this.sendChatbotMessage(errorMessage);
+
+            // Repeat the input
+            this.loginInputHandler('');
+        }
+    }
+
+    /**
+     * Function to perform login
+     */
+    registerUser() {
+        let errorMessage = 'Oh sorry, I could not register you, lets try again ;)';
+
+        try {
+            // Request the user email
+            this.sendChatbotMessage('Wait a second...');
+
+            this.userService.register({
+                name: this.userModel.name,
+                email: this.userModel.email,
+                cpf: this.userModel.cpf,
+                password: this.userModel.password,
+                birth_date: this.userModel.birth_date
+            }).then(data => {
+                if (data) {
+                    // Get the logged user
+                    this.auth.setUser({ data });
+
+                    // Handle the bot responde
+                    this.sendChatbotMessage('Hey ' + data.name + '! It is good to have you onboard :)');
+
+                    // TODO: Set the default currency
+
+                    // Show the logged menu
+                    this.presentLoggedMenu(data);
+
+                } else {
+                    // Handle the bot response
+                    this.sendChatbotMessage(errorMessage);
+
+                    // Repeat the input
+                    this.registerInputHandler('');
+                }
+            }).catch(function (reason) {
+                // Handle the bot response
+                this.sendChatbotMessage(errorMessage);
+
+                // Repeat the input
+                this.registerInputHandler('');
+            });
+        } catch (error) {
+            console.log(error);
+
+            // Handle the bot response
+            this.sendChatbotMessage(errorMessage);
+
+            // Repeat the input
+            this.registerInputHandler('');
         }
     }
 
@@ -367,6 +521,8 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      * Function to perform currency conversion
      */
     convertCurrency() {
+        let errorMessage = 'Oh sorry, I could not convert the money, lets try again ;)';
+
         try {
             // Request the user email
             this.sendChatbotMessage('Wait a second...');
@@ -380,8 +536,8 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 .then(data => {
                     if (data) {
                         // Handle the bot responde
-                        this.sendChatbotMessage(data.amount + ' ' + data.from_currency + " is equivalent to " + 
-                        data.converted_amount + ' ' + data.to_currency);
+                        this.sendChatbotMessage(data.amount + ' ' + data.from_currency + " is equivalent to " +
+                            data.converted_amount + ' ' + data.to_currency);
 
                         setTimeout(() => {
                             // Show the logged menu
@@ -389,17 +545,33 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                         }, 2000);
 
                     } else {
-                        // Handle the bot responde
-                        this.sendChatbotMessage('Oh sorry, I could not found your data, lets try again ;)');
+                        // Handle the bot response
+                        this.sendChatbotMessage(errorMessage);
 
                         // Repeat the input
                         this.quotationInputHandler('');
                     }
+                }).catch(function (reason) {
+                    // Handle the bot response
+                    this.sendChatbotMessage(errorMessage);
+
+                    // Repeat the input
+                    this.quotationInputHandler('');
                 });
         } catch (error) {
             console.log(error);
+
+            // Handle the bot response
+            this.sendChatbotMessage(errorMessage);
+
+            // Repeat the input
+            this.quotationInputHandler('');
         }
     }
+
+    // TODO: Implement setDefault Wallet
+
+    // TODO: Implement get Wallet
 
     // ***************************************************
     // ** Menu handlers
@@ -409,9 +581,10 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      * Function to decide which menu present
      */
     presentMenu() {
-        if (this.loggedUser !== undefined && this.loggedUser !== null) {
+        // Check the user session
+        if (this.auth.getUser() !== undefined && this.auth.getUser() !== null) {
             // Present the logged menu
-            this.presentLoggedMenu(this.loggedUser);
+            this.presentLoggedMenu(this.userModel);
         } else {
             // Present the guest menu
             this.presentGuestMenu();
