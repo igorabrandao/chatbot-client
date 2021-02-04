@@ -8,13 +8,13 @@
   <div class="row align-items-center justify-content-center">
     <div class="col-lg-8">
       <ul #scrollMe class="messages">
-        <div *ngFor="let msg of messageList ">
+        <div *ngFor="let msg of messageList; let idx = index">
           <li class="message appeared" [ngClass]="{'left':msg.sender === 'boot', 'right':msg.sender === defaultSender}">
             <div class="avatar"></div>
             <div class="text_wrapper">
               <div class="text">
                 <p class="time"> ({{msg.date | date:'HH:mm:ss'}})</p>
-                <div [innerHTML]="msg.message"></div>
+                <div id="msg{{idx}}" [ngStyle]="{'color': msg.color != '' ? msg.color : '' }" [innerHTML]="msg.message"></div>
               </div>
             </div>
           </li>
