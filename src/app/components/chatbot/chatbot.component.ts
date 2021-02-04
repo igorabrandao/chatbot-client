@@ -49,7 +49,8 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         amount: 0,
         from_currency: '',
         to_currency: '',
-        wallet_currency: ''
+        wallet_currency: '',
+        amount_currency: ''
     };
 
     // ***************************************************
@@ -99,11 +100,29 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     // ***************************************************
 
     /**
+     * Function to clear the conversation data
+     */
+    clearConversationData() {
+        this.conversationData = {
+            email: '',
+            passwd: '',
+            amount: 0,
+            from_currency: '',
+            to_currency: '',
+            wallet_currency: '',
+            amount_currency: ''
+        };
+    }
+
+    /**
      * Initialize the chatbot interaction
      */
     initBoot() {
         // Clear the message list
         this.messageList = [];
+
+        // Clear the conversation data
+        this.clearConversationData();
 
         // Set the default interaction type
         this.interactionType = 'message';
@@ -167,36 +186,25 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     sendMessage() {
         switch (this.interactionType) {
             case 'login':
-                if (this.userMessage !== undefined && this.userMessage != '') {
-                    this.loginInputHandler(this.userMessage);
-                } else {
-                    this.loginInputHandler('');
-                }
-
+                this.loginInputHandler(this.userMessage);
                 break;
             case 'register':
-                if (this.userMessage !== undefined && this.userMessage != '') {
-                    this.registerInputHandler(this.userMessage);
-                } else {
-                    this.registerInputHandler('');
-                }
-
+                this.registerInputHandler(this.userMessage);
                 break;
             case 'quotation':
-                if (this.userMessage !== undefined && this.userMessage != '') {
-                    this.quotationInputHandler(this.userMessage);
-                } else {
-                    this.quotationInputHandler('');
-                }
-
+                this.quotationInputHandler(this.userMessage);
                 break;
             case 'setCurrency':
-                if (this.userMessage !== undefined && this.userMessage != '') {
-                    this.setDefaultWalletInputHandler(this.userMessage);
-                } else {
-                    this.setDefaultWalletInputHandler('');
-                }
-
+                this.setDefaultWalletInputHandler(this.userMessage);
+                break;
+            case 'deposit':
+                this.depositInputHandler(this.userMessage);
+                break;
+            case 'withdraw':
+                this.withdrawInputHandler(this.userMessage);
+                break;
+            case 'showBalance':
+                this.showBalanceInputHandler(this.userMessage);
                 break;
             default:
                 if (this.userMessage !== undefined && this.userMessage != '') {
@@ -229,10 +237,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             case 'login':
                 // Set the interaction as a login input
                 this.interactionType = 'login';
-
-                // Call the login handler
                 this.loginInputHandler('');
-
                 break;
             case 'logout':
                 // Set the interaction as a login input
@@ -251,28 +256,33 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
                 break;
             case 'register':
-                // Set the interaction as a login input
+                // Set the interaction as a register input
                 this.interactionType = 'register';
-
-                // Call the register handler
                 this.registerInputHandler('');
-
-                break;
             case 'setCurrency':
                 // Set the interaction as the currency set
                 this.interactionType = 'setCurrency';
-
-                // Call the set currency handler
                 this.setDefaultWalletInputHandler('');
-
                 break;
             case 'quotation':
-                // Set the interaction as a login input
+                // Set the interaction as a quotation input
                 this.interactionType = 'quotation';
-
-                // Call the quotation handler
                 this.quotationInputHandler('');
-
+                break;
+            case 'deposit':
+                // Set the interaction as a deposit input
+                this.interactionType = 'deposit';
+                this.depositInputHandler('');
+                break;
+            case 'withdraw':
+                // Set the interaction as a withdraw input
+                this.interactionType = 'withdraw';
+                this.withdrawInputHandler('');
+                break;
+            case 'showBalance':
+                // Set the interaction as a showBalance input
+                this.interactionType = 'showBalance';
+                this.showBalanceInputHandler('');
                 break;
             default:
                 // Set the interaction as a simple message
@@ -300,7 +310,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      */
     loginInputHandler(message_: string) {
         // Check the input context
-        if (message_ == '') {
+        if (message_ === undefined || message_ == '') {
             if (this.conversationData['email'] === undefined || this.conversationData['email'] == '') {
                 // Request the user email
                 this.sendChatbotMessage('Please, inform your email');
@@ -345,7 +355,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         let currentField = '';
 
         // Check the input context
-        if (message_ == '') {
+        if (message_ === undefined || message_ == '') {
             if (this.userModel.name === undefined || this.userModel.name == '') {
                 this.sendChatbotMessage('Please, inform your name (required)');
             } else if (this.userModel.email === undefined || this.userModel.email == '') {
@@ -406,7 +416,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      */
     quotationInputHandler(message_: string) {
         // Check the input context
-        if (message_ == '') {
+        if (message_ === undefined || message_ == '') {
             // Request the quotation info
             this.sendChatbotMessage(
                 'To perform an currency exchange, use the sintax: <br/><br/>' +
@@ -446,7 +456,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      */
     setDefaultWalletInputHandler(message_: string) {
         // Check the input context
-        if (message_ == '') {
+        if (message_ === undefined || message_ == '') {
             // Request the quotation info
             this.sendChatbotMessage("Now, let's choose the currency ($$$)");
         } else {
@@ -465,6 +475,118 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             } else {
                 // Repeat the input
                 this.setDefaultWalletInputHandler('');
+            }
+        }
+    }
+
+    /**
+     * Function to handle the deposit input
+     * 
+     * @param message_ 
+     */
+    depositInputHandler(message_: string) {
+        // Check the input context
+        if (message_ === undefined || message_ == '') {
+            // Request the quotation info
+            this.sendChatbotMessage(
+                'To perform a deposit, use the following sintax: <br/><br/>' +
+                '<strong><amount> <amount_currency> to <wallet_currency> wallet</strong>' +
+                '<i><strong>e.g: 25 USD to USD wallet</strong></i>'
+            );
+        } else {
+            // Add the message to the list
+            this.messageList.push({ sender: this.defaultSender, message: this.userMessage, date: new Date() });
+
+            // Clear the input
+            this.userMessage = '';
+
+            // Split the input
+            let input = message_.split(' ');
+
+            // Validate the input
+            if (input.length == 5 && !isNaN(parseFloat(input[0])) && input[2] == 'to'
+                && input[1].length < 5 && input[3].length < 5) {
+                // Parse the input
+                this.conversationData['amount'] = parseFloat(input[0]);
+                this.conversationData['amount_currency'] = input[1];
+                this.conversationData['wallet_currency'] = input[3];
+
+                // Try to perform deposit the money
+                this.depositMoney();
+            } else {
+                // Repeat the input
+                this.depositInputHandler('');
+            }
+        }
+    }
+
+    /**
+     * Function to handle the withdraw input
+     * 
+     * @param message_ 
+     */
+    withdrawInputHandler(message_: string) {
+        // Check the input context
+        if (message_ === undefined || message_ == '') {
+            // Request the quotation info
+            this.sendChatbotMessage(
+                'To perform a money withdraw, use the following sintax: <br/><br/>' +
+                '<strong><amount> <amount_currency> from <wallet_currency> wallet</strong>' +
+                '<i><strong>e.g: 25 USD from USD wallet</strong></i>'
+            );
+        } else {
+            // Add the message to the list
+            this.messageList.push({ sender: this.defaultSender, message: this.userMessage, date: new Date() });
+
+            // Clear the input
+            this.userMessage = '';
+
+            // Split the input
+            let input = message_.split(' ');
+
+            // Validate the input
+            if (input.length == 5 && !isNaN(parseFloat(input[0])) && input[2] == 'to'
+                && input[1].length < 5 && input[3].length < 5) {
+                // Parse the input
+                this.conversationData['amount'] = parseFloat(input[0]);
+                this.conversationData['amount_currency'] = input[1];
+                this.conversationData['wallet_currency'] = input[3];
+
+                // Try to perform withdraw the money
+                this.withdrawMoney();
+            } else {
+                // Repeat the input
+                this.withdrawInputHandler('');
+            }
+        }
+    }
+
+    /**
+     * Function to handle the show balance input
+     * 
+     * @param message_ 
+     */
+    showBalanceInputHandler(message_: string) {
+        // Check the input context
+        if (message_ === undefined || message_ == '') {
+            // Request the quotation info
+            this.sendChatbotMessage("Choose the wallet currency or type 'all' to see all wallets");
+        } else {
+            // Add the message to the list
+            this.messageList.push({ sender: this.defaultSender, message: this.userMessage, date: new Date() });
+
+            // Parse the input
+            this.conversationData['wallet_currency'] = this.userMessage;
+
+            // Clear the input
+            this.userMessage = '';
+
+            if (this.conversationData['wallet_currency'] != '') {
+                // Try to get the wallet(s) balance
+                this.showBalance();
+            } else {
+                // Repeat the input
+                this.showBalanceInputHandler('');
             }
         }
     }
@@ -504,7 +626,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                     // Handle the bot response
                     this.sendChatbotMessage('Oh sorry, I could not found your data, lets try again ;)');
 
-                    // Clear the login fields
+                    // Clear the operation fields
                     this.conversationData['email'] = '';
                     this.conversationData['passwd'] = '';
 
@@ -583,7 +705,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 // Handle the bot response
                 this.sendChatbotMessage('Oh sorry, I could not convert the money, lets try again ;)');
 
-                // Clear the login fields
+                // Clear the operation fields
                 this.conversationData['from_currency'] = '';
                 this.conversationData['to_currency'] = '';
                 this.conversationData['amount'] = '';
@@ -618,10 +740,10 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                             } else {
                                 // Handle the bot response
                                 this.sendChatbotMessage('Could not set up the wallet, lets try again ;)');
-                
+
                                 // Clear the wallet fields
                                 this.conversationData['wallet_currency'] = '';
-                
+
                                 // Repeat the input
                                 this.setDefaultWalletInputHandler('');
                             }
@@ -641,16 +763,142 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                             } else {
                                 // Handle the bot response
                                 this.sendChatbotMessage('Could not set up the wallet, lets try again ;)');
-                
+
                                 // Clear the wallet fields
                                 this.conversationData['wallet_currency'] = '';
-                
+
                                 // Repeat the input
                                 this.setDefaultWalletInputHandler('');
                             }
                         });
                 }
             });
+    }
+
+    /**
+     * Function to deposit money
+     */
+    depositMoney() {
+        this.sendChatbotMessage('Wait a second...');
+
+        // Try to deposit the money
+        this.transactionService.depositMoney({
+            user_id: this.userModel.id,
+            amount_currency: this.conversationData['amount_currency'],
+            wallet_currency: this.conversationData['wallet_currency'],
+            amount: this.conversationData['amount']
+        }).then(wallet => {
+            // Check the wallet data
+            if (wallet !== null && wallet !== undefined && Object.keys(wallet).length > 0) {
+                // Handle the bot response
+                this.sendChatbotMessage('You sent <strong>' + this.conversationData['amount'] + ' ' + this.conversationData['amount_currency'] +
+                    "</strong> to the " + this.conversationData['wallet_currency'] + ' wallet. The new balance is: <strong>' + wallet.balance + '</strong>');
+
+                setTimeout(() => {
+                    // Show the logged menu
+                    this.presentMenu();
+                }, 2000);
+            } else {
+                // Handle the bot response
+                this.sendChatbotMessage('Oh sorry, I could not send the money, lets try again ;)');
+
+                // Clear the operation fields
+                this.conversationData['amount_currency'] = '';
+                this.conversationData['wallet_currency'] = '';
+                this.conversationData['amount'] = '';
+
+                // Repeat the input
+                this.depositInputHandler('');
+            }
+        });
+    }
+
+    /**
+     * Function to withdraw money
+     */
+    withdrawMoney() {
+        this.sendChatbotMessage('Wait a second...');
+
+        // Try to withdraw the money
+        this.transactionService.withdrawMoney({
+            user_id: this.userModel.id,
+            amount_currency: this.conversationData['amount_currency'],
+            wallet_currency: this.conversationData['wallet_currency'],
+            amount: this.conversationData['amount']
+        }).then(wallet => {
+            // Check the wallet data
+            if (wallet !== null && wallet !== undefined && Object.keys(wallet).length > 0) {
+                // Handle the bot response
+                this.sendChatbotMessage('you have withdrawn <strong>' + this.conversationData['amount'] + ' ' + this.conversationData['amount_currency'] +
+                    "</strong> from the " + this.conversationData['wallet_currency'] + ' wallet. The new balance is: <strong>' + wallet.balance + '</strong>');
+
+                setTimeout(() => {
+                    // Show the logged menu
+                    this.presentMenu();
+                }, 2000);
+            } else {
+                // Handle the bot response
+                this.sendChatbotMessage('Oh sorry, I could not get the money, lets try again ;)');
+
+                // Clear the operation fields
+                this.conversationData['amount_currency'] = '';
+                this.conversationData['wallet_currency'] = '';
+                this.conversationData['amount'] = '';
+
+                // Repeat the input
+                this.withdrawInputHandler('');
+            }
+        });
+    }
+
+    /**
+     * Function to show the wallet balance
+     */
+    showBalance() {
+        this.sendChatbotMessage('Wait a second...');
+
+        // Try to withdraw the money
+        this.transactionService.showWalletBalance({
+            user_id: this.userModel.id,
+            currency: this.conversationData['wallet_currency']
+        }).then(data => {
+            // Check the wallet data
+            if (data !== null && data !== undefined && Object.keys(data).length > 0) {
+                let wallets: any = [];
+                let returnMessage: string = 'Below you can see your wallet(s) balance:<br/><br/>';
+
+                if (data.length === undefined) {
+                    wallets.push(data);
+                } else {
+                    wallets = data;
+                }
+
+                // Loop over the wallets
+                wallets.forEach(wallet => {
+                    returnMessage += 'Wallet <strong>' + wallet.currency + '</strong><br/>';
+                    returnMessage += 'Code: ' + wallet.code + '<br/>';
+                    returnMessage += 'Balance: ' + wallet.balance + '<br/>';
+                    returnMessage += '<hr>';
+                });
+
+                // Handle the bot response
+                this.sendChatbotMessage(returnMessage);
+
+                setTimeout(() => {
+                    // Show the logged menu
+                    this.presentMenu();
+                }, 2000);
+            } else {
+                // Handle the bot response
+                this.sendChatbotMessage('Oh sorry, I could not get your wallet, lets try again ;)');
+
+                // Clear the operation fields
+                this.conversationData['wallet_currency'] = '';
+
+                // Repeat the input
+                this.showBalanceInputHandler('');
+            }
+        });
     }
 
     // ***************************************************
@@ -681,9 +929,9 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
         // Present the options
         message = "Which option you'd like to pick? <br/><br/>";
-        message += "-Deposit money into your account <br/>";
+        message += "-Deposit money into your wallet <br/>";
         message += "-Withdraw money <br/>";
-        message += "-Show your account balance <br/>";
+        message += "-Show your wallet(s) balance <br/>";
         message += "-Set your default currency or create a new one <br/>";
         message += "-Get currency quotation <br/>";
         message += "-Logout";

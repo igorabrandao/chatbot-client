@@ -5,6 +5,7 @@ import { IResourceMethod, ResourceAction, ResourceParams, ResourceRequestMethod 
 
 // Interfaces
 import { Transaction } from '../../interfaces/transaction';
+import { Wallet } from '../../interfaces/wallet';
 
 @Injectable()
 @ResourceParams({
@@ -21,4 +22,34 @@ export class TransactionService extends BaseService {
         skipAuthorization: true
     })
     convertCurrency: IResourceMethod<{ from_currency: string, to_currency: string, amount: number }, Transaction>;
+
+    /**
+     * Deposit money
+     */
+    @ResourceAction({
+        method: ResourceRequestMethod.Post,
+        path: '/deposit-money',
+        skipAuthorization: true
+    })
+    depositMoney: IResourceMethod<{ user_id: number, amount_currency: string, wallet_currency: string, amount: number }, Wallet>;
+
+    /**
+     * Convert currencies
+     */
+    @ResourceAction({
+        method: ResourceRequestMethod.Post,
+        path: '/withdraw-money',
+        skipAuthorization: true
+    })
+    withdrawMoney: IResourceMethod<{ user_id: number, amount_currency: string, wallet_currency: string, amount: number }, Wallet>;
+
+    /**
+     * Convert currencies
+     */
+    @ResourceAction({
+        method: ResourceRequestMethod.Post,
+        path: '/show-wallet-balance',
+        skipAuthorization: true
+    })
+    showWalletBalance: IResourceMethod<{ user_id: number, currency: string }, Wallet[]>;
 }
