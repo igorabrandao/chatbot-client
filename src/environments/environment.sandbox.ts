@@ -5,6 +5,6 @@
 
 export const environment = {
     production: true,
-    apiUrl: 'https://chatbot.igorabrandao.com.br',
-    baseUrl: 'https://chatbot.igorabrandao.com.br'
+    apiUrl: 'https://chatbot.igorabrandao.com.br/chatbot-api/api/web/v1',
+    baseUrl: 'https://chatbot.igorabrandao.com.br/chatbot-api/api/web/v1'
 };
