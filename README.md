@@ -1,59 +1,79 @@
-# Base Angular
+# Chatbot Client Application
 
-This project was generated with [Angular CLI]
+In this repository, there are codes related to the Chatbot Client application.
 
-## Getting Started
-
-### Prerequisites
+## Prerequisites
 
 * NodeJS
 * NPM
 * Angular CLI
 
-### Installing
+## Installation of dependencies
 
-Installing Node (v8.x)
-```
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-sudo apt-get install -y nodejs
-```
-Installing Angular CLI
-```
-npm install -g @angular/cli
-```
-If necessary uses *sudo* before the command
+Before starting to work it is necessary to install the project dependencies using the command:
+
+Run `npm install`
 
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-## Running in a custom environment
+## Production
 
-At first, you have to create a file called environment.custom.ts under environment folder
-
-Run `ng server -env custom`
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
-
-## Build Production
+And when you want to launch the application for production, run the command:
 
 Run `ng build -env prod`
 
-## Running unit tests
+## Running in a sandbox environment
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+And when you want to launch the application for sandbox environment, run the command:
 
-## Running end-to-end tests
+Run `ng server -env sandbox`
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-Before running the tests make sure you are serving the app via `ng serve`.
+***
+## Chatbot commands
 
-##Troubles
+Below there are the chatbot available `keywords`:
 
-If the webpack watching function does not working on deep files, execute the command bellow:
+### Login
 
-```
-echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-```
+`login`, `signin`, `sign-in`, `sign in`, `logon`, `log-on`, `enter`, `access`, `enter`, `open`, `connect`, `auth`, `connection`, `enroll`, `authenticate`, `subscribe`, `in`
+
+### Logout
+
+`logout`, `signout`, `sign-out`, `sign out`, `log-out`, `exit`, `quit`, `away`, `close`, `disconnect`, `disconnection`, `unroll`, `unauthenticate`, `unsubscribe`, `out`
+
+### Register
+
+`register`, `signup`, `sign-up`, `sign up`, `create an account`, `create account`, `account`, `roll`, `record`, `set account`, `submit`, `engage`, `recruit`, `engage`, `take on`, `admit`, `lay on`, `employ`, `make`, `assign`, `instal`, `install` `establish`, `constitute`, `hire`, `invest in`, `start`, `begin`, `init`, `initialize`, `account.`, `account,`, `account!`, `account?`, `account@`
+
+### Currency exchange
+
+`convert`, `quotation`, `quote`, `exchange`, `change`, `quotes`, `swap`, `shift`, `transform`, `modify`, `remodel`, `reshape`, `redo`, `modification`, `turn`, `translate`, `cast`, `transmute`, `permute`
+
+### Set default currency
+
+`set currency`, `currency`, `default`, `current`, `set`, `wallet`, `create wallet`
+
+### Deposit
+
+`deposit`, `down payment`, `send`, `sent`, `pledge`, `front money`, `put`, `place`, `dispatch`, `mail`, `address`, `get off`, `convey`, `consign`, `direct`, `forward`, `send on`, `remit`, `post`
+
+### Withdraw
+
+`withdraw`, `get money`, `remove`, `extract`, `draw out`, `pull out`, `take back`, `take money`, `back`, `pull`, `give`, `give me`, `pay`, `pay me`, `take`, `get some`, `get`
+
+### Show balance
+
+`show`, `balance`, `display`, `manifest`, `exhibit`, `reveal`, `communicate`, `indicate`, `express`, `present`, `view`, `see`, `lecture`, `expose`, `exposition`, `presentation`, `array`, `arrangement`, `exhibition`
+
+### Cancel operation
+
+`cancel`, `call of`, `abandon`, `give up`, `back`, `go back`, `return`, `menu`, `nullify`, `axe`, `neutralize`, `stop`, `cease`, `end`, `previous`, `halt`, `terminate`
+
+### Greeting
+
+`hello`, `good`, `good morning`, `good afternoon`, `good evening`, `it’s nice to meet you`, `it’s a pleasure to meet you`, `whats up`, `hey`, `hi`, `how`, `what’s up`, `long time`, `are you ok`, `sup`, `hiya`
+
+
+*That's all folks*

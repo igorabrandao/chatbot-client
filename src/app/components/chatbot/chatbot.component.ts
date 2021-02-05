@@ -365,8 +365,8 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      */
     goBack(message_: string) {
         if (message_.toLowerCase() == 'cancel' || message_.toLowerCase() == 'q' || message_.toLowerCase() == 'back'
-        || message_.toLowerCase() == 'stop' || message_.toLowerCase() == 'halt' || message_.toLowerCase() == 'quit'
-        || message_.toLowerCase() == 'leave' || message_.toLowerCase() == 'menu' || message_.toLowerCase() == 'go back') {
+            || message_.toLowerCase() == 'stop' || message_.toLowerCase() == 'halt' || message_.toLowerCase() == 'quit'
+            || message_.toLowerCase() == 'leave' || message_.toLowerCase() == 'menu' || message_.toLowerCase() == 'go back') {
             this.interactionType = 'message';
             this.presentMenu();
             return true;
@@ -396,7 +396,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 this.userMessage = '';
                 return false;
             }
-            
+
             if (this.conversationData['email'] === undefined || this.conversationData['email'] == '') {
                 // Get the email
                 this.conversationData['email'] = message_;
@@ -935,9 +935,9 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             // Check the wallet data
             if (temp !== null && temp !== undefined && Object.keys(temp).length > 0) {
                 // Handle the bot response
-                this.sendChatbotMessage('You sent <strong>' + this.conversationData['amount'] + ' ' + 
+                this.sendChatbotMessage('You sent <strong>' + this.conversationData['amount'] + ' ' +
                     this.conversationData['amount_currency'].toUpperCase() +
-                    "</strong> to the " + this.conversationData['wallet_currency'].toUpperCase() + ' wallet. The new balance is: <strong>' + 
+                    "</strong> to the " + this.conversationData['wallet_currency'].toUpperCase() + ' wallet. The new balance is: <strong>' +
                     (Math.round(wallet.balance * 100) / 100).toFixed(2) + this.conversationData['wallet_currency'].toUpperCase() +
                     '</strong>', false, true);
 
@@ -980,10 +980,10 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             // Check the wallet data
             if (temp !== null && temp !== undefined && Object.keys(temp).length > 0) {
                 // Handle the bot response
-                this.sendChatbotMessage('you have withdrawn <strong>' + this.conversationData['amount'] + ' ' + 
+                this.sendChatbotMessage('you have withdrawn <strong>' + this.conversationData['amount'] + ' ' +
                     this.conversationData['amount_currency'].toUpperCase() +
-                    "</strong> from the " + this.conversationData['wallet_currency'].toUpperCase() + 
-                    ' wallet. The new balance is: <strong>' + 
+                    "</strong> from the " + this.conversationData['wallet_currency'].toUpperCase() +
+                    ' wallet. The new balance is: <strong>' +
                     (Math.round(wallet.balance * 100) / 100).toFixed(2) + this.conversationData['wallet_currency'].toUpperCase() +
                     '</strong>', false, true);
 
@@ -1013,7 +1013,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      */
     showBalance() {
         this.sendChatbotMessage('Wait a second...');
-        
+
         // Try to withdraw the money
         this.transactionService.showWalletBalance({
             user_id: this.userModel.id,
@@ -1039,7 +1039,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                     } else {
                         returnMessage += 'Wallet <strong>' + wallet.currency + '</strong><br/>';
                     }
-                    
+
                     returnMessage += 'Code: ' + wallet.code + '<br/>';
                     returnMessage += 'Balance: ' + wallet.balance + '<br/>';
                     returnMessage += '<hr>';
@@ -1097,7 +1097,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         if (showQuestion_) {
             message = "Which option you'd like to pick? <br/><br/>";
         }
-        
+
         // Present the options
         message += "-Deposit money into your wallet <br/>";
         message += "-Withdraw money <br/>";
@@ -1120,7 +1120,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
      */
     presentGuestMenu(showQuestion_ = true) {
         let message: string = "";
-        
+
         if (showQuestion_) {
             message += "Which option you'd like to pick? <br/><br/>";
         }
