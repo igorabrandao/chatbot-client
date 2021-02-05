@@ -8,7 +8,7 @@
   padding: 20px 10px 0 10px;
   margin: 0;
   overflow: scroll;
-  height: 600px;
+  height: 700px;
   box-sizing: border-box;
 }
 
@@ -126,4 +126,23 @@ input {
   width: 100%;
   border-radius: 10px;
   text-transform: uppercase;
+}
+
+.robot {
+  width: 35px;
+  height: 48px;
+  margin-top: 10%;
+  margin-left: 18%;
+}
+
+.user {
+  width: 47px;
+  height: 47px;
+  margin-top: 10%;
+  margin-left: 12%;
+}
+
+.tip {
+  font-style: italic;
+  color: #414a4c;
 }

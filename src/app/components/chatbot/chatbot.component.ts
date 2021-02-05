@@ -115,11 +115,34 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Function clear the user data
+     */
+    clearUserData() {
+        this.userModel = { name: '', email: '', cpf: '', password: '', birth_date: '' };
+    }
+
+    /**
+     * Function to retrieve the last sent message
+     */
+    getLastMessage() {
+        // Loop over the messages list
+        for (let idx = this.messageList.length; idx >= 0; idx--) {
+            if (this.messageList[idx] !== undefined && this.messageList[idx].sender == this.defaultSender) {
+                this.userMessage = this.messageList[idx].message;
+                break;
+            }
+        }
+    }
+
+    /**
      * Initialize the chatbot interaction
      */
     initBoot() {
         // Clear the message list
         this.messageList = [];
+
+        // Clear the user data
+        this.clearUserData();
 
         // Clear the conversation data
         this.clearConversationData();
@@ -144,11 +167,6 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             // Present the logged menu
             this.presentMenu();
         } else {
-            // Initialize the user modal
-            if (this.userModel == null || this.userModel == undefined) {
-                this.userModel = { name: '', email: '', cpf: '', password: '', birth_date: '' };
-            }
-
             // Clear the wallet list
             this.walletList = [];
 
@@ -270,6 +288,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 // Set the interaction as a register input
                 this.interactionType = 'register';
                 this.registerInputHandler('');
+                break;
             case 'setCurrency':
                 // Set the interaction as the currency set
                 this.interactionType = 'setCurrency';
@@ -299,6 +318,15 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 // Set the interaction as a simple message
                 this.interactionType = 'message';
                 this.presentMenu();
+                break;
+            case 'greeting':
+                // Handle error cases
+                this.sendChatbotMessage("Hey there, let's back to work!");
+
+                setTimeout(() => {
+                    // Show the avaiable menu
+                    this.presentMenu(false);
+                }, 2000);
                 break;
             default:
                 // Set the interaction as a simple message
@@ -411,13 +439,11 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             } else if (this.userModel.email === undefined || this.userModel.email == '') {
                 this.sendChatbotMessage('Your email (required)');
             } else if (this.userModel.cpf === undefined || this.userModel.cpf == '') {
-                this.sendChatbotMessage('Your CPF (required)');
-                this.sendChatbotMessage('example: 999.999.999-99');
+                this.sendChatbotMessage('Your CPF (required)<br/><br/><i>example: 999.999.999-99</i>');
             } else if (this.userModel.password === undefined || this.userModel.password == '') {
                 this.sendChatbotMessage('Your password (required)');
             } else if (this.userModel.birth_date === undefined || this.userModel.birth_date == '') {
-                this.sendChatbotMessage('Finally, inform your birth date (required)');
-                this.sendChatbotMessage('format: (mm-dd-YYYY)');
+                this.sendChatbotMessage('Finally, inform your birth date (required)<br/><br/><i>format: (mm-dd-YYYY)</i>');
             }
         } else {
             if (this.goBack(message_)) {
@@ -558,7 +584,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             // Request the quotation info
             this.sendChatbotMessage(
                 'To perform a deposit, use the following sintax: <br/><br/>' +
-                '<strong><amount> <amount_currency> to <wallet_currency> wallet</strong>' +
+                '<strong>[amount] [amount_currency] to [wallet_currency] wallet</strong><br/>' +
                 '<i><strong>e.g: 25 USD to USD wallet</strong></i>'
             );
         } else {
@@ -605,7 +631,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             // Request the quotation info
             this.sendChatbotMessage(
                 'To perform a money withdraw, use the following sintax: <br/><br/>' +
-                '<strong><amount> <amount_currency> from <wallet_currency> wallet</strong>' +
+                '<strong>[amount] [amount_currency] from [wallet_currency] wallet</strong><br/>' +
                 '<i><strong>e.g: 25 USD from USD wallet</strong></i>'
             );
         } else {
@@ -703,11 +729,15 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
                     // Check if the user already have a default wallet
                     this.walletService.checkDefaultWallet({ user_id: result.id }).then(wallet => {
-                        if (wallet !== null && wallet !== undefined) {
+                        let temp = this.errorHandler(wallet);
+
+                        if (temp !== null && temp !== undefined && Object.keys(temp).length > 0) {
                             // Show the logged menu
                             this.presentLoggedMenu(result);
                         } else {
                             // Call the set default wallet
+                            this.interactionType = 'setCurrency';
+                            this.sendChatbotMessage("Before starting, let's set your default wallet");
                             this.setDefaultWalletInputHandler('');
                         }
                     });
@@ -745,17 +775,25 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                 if (temp !== undefined && temp !== null && temp) {
                     // Get the logged user
                     this.auth.setUser(result);
+                    this.userModel = result;
+
+                    // Clear the covnersation data
+                    this.clearConversationData();
 
                     // Handle the bot response
                     this.sendChatbotMessage('Hey ' + result.name + '! It is good to have you onboard :)', false, true);
 
                     // Check if the user already have a default wallet
                     this.walletService.checkDefaultWallet({ user_id: result.id }).then(wallet => {
-                        if (wallet !== null && wallet !== undefined) {
+                        let temp = this.errorHandler(wallet);
+
+                        if (temp !== null && temp !== undefined && Object.keys(temp).length > 0) {
                             // Show the logged menu
                             this.presentLoggedMenu(result);
                         } else {
                             // Call the set default wallet
+                            this.interactionType = 'setCurrency';
+                            this.sendChatbotMessage("Before starting, let's set your default wallet");
                             this.setDefaultWalletInputHandler('');
                         }
                     });
@@ -764,7 +802,10 @@ export class ChatbotComponent implements OnInit, OnDestroy {
                     this.sendChatbotMessage('I could not register you, lets try again', true);
 
                     // Clear the current user data
-                    this.userModel = { name: '', email: '', cpf: '', password: '', birth_date: '' };
+                    this.clearUserData();
+
+                    // Clear the covnersation data
+                    this.clearConversationData();
 
                     // Repeat the input
                     this.registerInputHandler('');
@@ -894,8 +935,11 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             // Check the wallet data
             if (temp !== null && temp !== undefined && Object.keys(temp).length > 0) {
                 // Handle the bot response
-                this.sendChatbotMessage('You sent <strong>' + this.conversationData['amount'] + ' ' + this.conversationData['amount_currency'] +
-                    "</strong> to the " + this.conversationData['wallet_currency'] + ' wallet. The new balance is: <strong>' + wallet.balance + '</strong>', false, true);
+                this.sendChatbotMessage('You sent <strong>' + this.conversationData['amount'] + ' ' + 
+                    this.conversationData['amount_currency'].toUpperCase() +
+                    "</strong> to the " + this.conversationData['wallet_currency'].toUpperCase() + ' wallet. The new balance is: <strong>' + 
+                    (Math.round(wallet.balance * 100) / 100).toFixed(2) + this.conversationData['wallet_currency'].toUpperCase() +
+                    '</strong>', false, true);
 
                 setTimeout(() => {
                     // Show the logged menu
@@ -990,7 +1034,12 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
                 // Loop over the wallets
                 wallets.forEach(wallet => {
-                    returnMessage += 'Wallet <strong>' + wallet.currency + '</strong><br/>';
+                    if (wallet.is_default) {
+                        returnMessage += 'Wallet <strong>' + wallet.currency + ' (default)</strong><br/>';
+                    } else {
+                        returnMessage += 'Wallet <strong>' + wallet.currency + '</strong><br/>';
+                    }
+                    
                     returnMessage += 'Code: ' + wallet.code + '<br/>';
                     returnMessage += 'Balance: ' + wallet.balance + '<br/>';
                     returnMessage += '<hr>';
