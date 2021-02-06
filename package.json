@@ -7,6 +7,7 @@
     "start": "ng serve",
     "build": "ng build",
     "build-sandbox": "ng build --env=sandbox",
+    "build-prod": "ng build --env=prod",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
